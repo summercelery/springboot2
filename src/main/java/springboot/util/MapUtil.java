@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import springboot.anno.NotToMap;
+import sun.net.util.IPAddressUtil;
 
 import java.beans.BeanInfo;
 import java.beans.Introspector;
@@ -24,7 +25,6 @@ public class MapUtil {
     private static Logger logger = LoggerFactory.getLogger(MapUtil.class);
 
     public static Map<String, String> objectToMap(Object obj) {
-
         if (obj == null) {
             return null;
         }

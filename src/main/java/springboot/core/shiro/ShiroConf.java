@@ -10,7 +10,6 @@ import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.servlet.Cookie;
 import org.apache.shiro.web.servlet.ShiroHttpSession;
 import org.apache.shiro.web.servlet.SimpleCookie;
-import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -28,25 +27,25 @@ import java.util.List;
 public class ShiroConf {
 
     //配置自定义的密码比较器
-    @Bean(name="credentialsMatcher")
+    @Bean(name = "credentialsMatcher")
     public CredentialsMatcher credentialsMatcher() {
         return new CredentialsMather();
     }
 
     //配置自定义的权限登录器
-    @Bean(name="loginNameRealm")
-    public LoginNameRealm loginNameRealm(){
+    @Bean(name = "loginNameRealm")
+    public LoginNameRealm loginNameRealm() {
         LoginNameRealm loginNameRealm = new LoginNameRealm();
         loginNameRealm.setCredentialsMatcher(new CredentialsMather());
         return loginNameRealm;
     }
 
     @Bean(name = "phoneRealm")
-    public PhoneRealm phoneRealm(){
+    public PhoneRealm phoneRealm() {
         return new PhoneRealm();
     }
 
-    @Bean(name="sessionManager")
+    @Bean(name = "sessionManager")
     public ShiroSessionManager defaultWebSessionManager() {
         ShiroSessionManager sessionManager = new ShiroSessionManager();
         sessionManager.setSessionDAO(redisSessionDAO());//如不想使用REDIS可注释此行
@@ -54,9 +53,9 @@ public class ShiroConf {
         sessionListeners.add(customSessionListener());
         sessionManager.setSessionListeners(sessionListeners);
         //单位为毫秒（1秒=1000毫秒） 3600000毫秒为1个小时
-        sessionManager.setSessionValidationInterval(3600000*12);
+        sessionManager.setSessionValidationInterval(3600000 * 12);
         //3600000 milliseconds = 1 hour
-        sessionManager.setGlobalSessionTimeout(3600000*12);
+        sessionManager.setGlobalSessionTimeout(3600000 * 12);
         //是否删除无效的，默认也是开启
         sessionManager.setDeleteInvalidSessions(true);
         //是否开启 检测，默认开启
@@ -70,10 +69,10 @@ public class ShiroConf {
     }
 
     //配置核心安全事务管理器
-    @Bean(name="securityManager")
+    @Bean(name = "securityManager")
     public DefaultWebSecurityManager securityManager() {
-        DefaultWebSecurityManager manager=new DefaultWebSecurityManager();
-        CustomModularReamAuthenticator authenticator =new CustomModularReamAuthenticator();
+        DefaultWebSecurityManager manager = new DefaultWebSecurityManager();
+        CustomModularReamAuthenticator authenticator = new CustomModularReamAuthenticator();
 
         List<Realm> realmlist = new ArrayList<>();
         realmlist.add(loginNameRealm());
@@ -87,15 +86,15 @@ public class ShiroConf {
         return manager;
     }
 
-    @Bean(name="shiroFilter")
+    @Bean(name = "shiroFilter")
     public ShiroFilterFactoryBean shiroFilter(@Qualifier("securityManager") DefaultWebSecurityManager manager) {
-        ShiroFilterFactoryBean bean=new ShiroFilterFactoryBean();
+        ShiroFilterFactoryBean bean = new ShiroFilterFactoryBean();
         bean.setSecurityManager(manager);
         //配置登录的url和登录成功的url
         bean.setLoginUrl("/login.html");
         bean.setSuccessUrl("/home");
         //配置访问权限
-        LinkedHashMap<String, String> filterChainDefinitionMap=new LinkedHashMap<>();
+        LinkedHashMap<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
         filterChainDefinitionMap.put("/login.html", "anon"); //表示可以匿名访问
         filterChainDefinitionMap.put("/register.html", "anon");
 
@@ -111,24 +110,24 @@ public class ShiroConf {
     }
 
     @Bean(name = "redisSessionDAO")
-    public RedisSessionDao redisSessionDAO(){
+    public RedisSessionDao redisSessionDAO() {
         return new RedisSessionDao();
     }
 
     @Bean(name = "customSessionListener")
-    public CustomSessionListener customSessionListener(){
+    public CustomSessionListener customSessionListener() {
         return new CustomSessionListener();
     }
 
 
-
     @Bean
-    public LifecycleBeanPostProcessor lifecycleBeanPostProcessor(){
+    public LifecycleBeanPostProcessor lifecycleBeanPostProcessor() {
         return new LifecycleBeanPostProcessor();
     }
+
     @Bean
-    public DefaultAdvisorAutoProxyCreator defaultAdvisorAutoProxyCreator(){
-        DefaultAdvisorAutoProxyCreator creator=new DefaultAdvisorAutoProxyCreator();
+    public DefaultAdvisorAutoProxyCreator defaultAdvisorAutoProxyCreator() {
+        DefaultAdvisorAutoProxyCreator creator = new DefaultAdvisorAutoProxyCreator();
         creator.setProxyTargetClass(true);
         return creator;
     }
@@ -140,7 +139,6 @@ public class ShiroConf {
         authorizationAttributeSourceAdvisor.setSecurityManager(securityManager);
         return authorizationAttributeSourceAdvisor;
     }
-
 
 
 }
